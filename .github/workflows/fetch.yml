@@ -2,7 +2,9 @@ name: Fetch Flight Prices
 
 on:
   schedule:
-    - cron: '*/2 * * * *'   # minden 2 percben fut
+    - cron: '0 7 * * *'    # 09:00 Budapest (UTC+2)
+    - cron: '0 12 * * *'   # 14:00 Budapest
+    - cron: '0 19 * * *'   # 21:00 Budapest
   workflow_dispatch:
 
 jobs:
