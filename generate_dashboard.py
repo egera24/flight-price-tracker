@@ -232,6 +232,10 @@ def generate(csv_path: str, output_path: str) -> None:
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)
 
+    # Jekyll kikapcsolása – GitHub Pages ne próbálja feldolgozni a HTML-t
+    nojekyll_path = os.path.join(os.path.dirname(output_path), ".nojekyll")
+    open(nojekyll_path, "w").close()
+
     print(f"Dashboard legenerálva: {output_path} ({len(chart_data)} mérési pont)")
 
 
