@@ -1,0 +1,41 @@
+name: Fetch Flight Prices
+
+on:
+  schedule:
+    # UTC időzónában – nyáron Budapest UTC+2, tehát:
+    - cron: '0 7 * * *'    # 09:00 Budapest
+    - cron: '0 12 * * *'   # 14:00 Budapest
+    - cron: '0 19 * * *'   # 21:00 Budapest
+  workflow_dispatch:        # Manuális indítás is lehetséges a GitHub felületéről
+
+jobs:
+  fetch-prices:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write       # Szükséges a CSV visszacommitálásához
+
+    steps:
+      - name: Kód checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Python 3.11 beállítása
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Függőségek telepítése
+        run: pip install -r requirements.txt
+
+      - name: Jegyárak lekérése
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+        run: python fetch_prices.py
+
+      - name: Frissített CSV visszacommitálása
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "data: árak frissítve – ${{ github.run_id }}"
+          file_pattern: data/prices.csv

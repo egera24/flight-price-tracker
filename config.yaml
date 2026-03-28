@@ -1,0 +1,30 @@
+serpapi:
+  base_url: "https://serpapi.com/search"
+  engine: "google_flights"
+
+search:
+  currency: "EUR"
+  language: "en"
+  adults: 1
+
+flights:
+  outbound:
+    origin: "BUD"
+    destination: "IST"
+    date: "2025-08-10"
+    carrier_code: "TK"
+    target_departures:     # Ezekre a menetrendidőkre szűrünk
+      - "09:00"
+      - "12:20"
+
+  inbound:
+    origin: "IST"
+    destination: "BUD"
+    date: "2025-08-18"
+    carrier_code: "TK"
+    target_departures:
+      - "18:30"
+
+output:
+  csv_path: "data/prices.csv"
+  timestamp_format: "%Y-%m-%d %H:%M:%S"
