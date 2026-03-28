@@ -20,7 +20,7 @@ flights:
   inbound:
     origin: "IST"
     destination: "BUD"
-    date: "2025-08-18"
+    date: "2026-08-18"
     carrier_code: "TK"
     target_departures:
       - "18:35"
