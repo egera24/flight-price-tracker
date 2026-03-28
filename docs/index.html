@@ -1,1 +1,128 @@
-<p>Hamarosan...</p>
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repülőjegy árfigyelő – BUD ↔ IST</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f4f4f0; color: #1a1a1a; min-height: 100vh; }
+  .container { max-width: 960px; margin: 0 auto; padding: 2rem 1rem; }
+  h1 { font-size: 1.4rem; font-weight: 500; margin-bottom: 0.25rem; }
+  .subtitle { font-size: 0.8rem; color: #666; margin-bottom: 1.5rem; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .card { background: #fff; border-radius: 10px; padding: 1rem; border: 0.5px solid #e0e0e0; }
+  .card-label { font-size: 0.72rem; color: #888; margin-bottom: 4px; }
+  .card-value { font-size: 1.4rem; font-weight: 500; }
+  .card-sub { font-size: 0.7rem; color: #aaa; margin-top: 2px; }
+  .chart-box { background: #fff; border-radius: 10px; padding: 1.25rem; border: 0.5px solid #e0e0e0; margin-bottom: 1rem; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: #555;
+    background: #f9f9f7; border: 0.5px solid #ddd; border-radius: 6px; padding: 3px 8px; cursor: pointer; transition: opacity .15s; }
+  .legend-item.hidden { opacity: 0.35; }
+  .legend-line { width: 18px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+  .legend-dashed { width: 18px; height: 0; border-bottom: 2px dashed; flex-shrink: 0; }
+  .chart-wrap { position: relative; height: 340px; }
+  .footer { font-size: 0.7rem; color: #aaa; text-align: right; margin-top: 0.5rem; }
+  @media (max-width: 500px) { .card-value { font-size: 1.1rem; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>BUD ↔ IST repülőjegy árfigyelő</h1>
+  <p class="subtitle">Turkish Airlines · augusztus 10–18. · Utoljára frissítve: 2026-03-28 18:08</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">Roundtrip 09:00 (most)</div>
+      <div class="card-value" style="color:#7F77DD">246 EUR</div>
+      <div class="card-sub">return jegy</div>
+    </div>
+    <div class="card">
+      <div class="card-label">One-way összesen 09:00 (most)</div>
+      <div class="card-value" style="color:#D4537E">308 EUR</div>
+      <div class="card-sub">oda + vissza külön</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Megtakarítás return jeggyel</div>
+      <div class="card-value" style="color:#1D9E75">62 EUR</div>
+      <div class="card-sub">09:00-ás járattal</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Legolcsóbb roundtrip eddig</div>
+      <div class="card-value">246 EUR</div>
+      <div class="card-sub">09:00 oda · 18:35 vissza</div>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <div class="legend" id="legend"></div>
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+    <p class="footer">1 mérési pont · 5 adatsor</p>
+  </div>
+</div>
+
+<script>
+const SERIES = [{"key": "outbound_09:00", "label": "Oda 09:00 (one-way)", "color": "#378ADD", "dashed": false}, {"key": "outbound_14:10", "label": "Oda 14:10 (one-way)", "color": "#1D9E75", "dashed": false}, {"key": "inbound_18:35", "label": "Vissza 18:35 (one-way)", "color": "#D85A30", "dashed": false}, {"key": "roundtrip_09:00", "label": "Roundtrip 09:00", "color": "#7F77DD", "dashed": false}, {"key": "roundtrip_14:10", "label": "Roundtrip 14:10", "color": "#BA7517", "dashed": false}, {"key": "oneway_total_09:00", "label": "One-way összesen 09:00", "color": "#D4537E", "dashed": true}, {"key": "oneway_total_14:10", "label": "One-way összesen 14:10", "color": "#888780", "dashed": true}];
+const CHART_DATA = [{"ts": "2026-03-28 18:08", "outbound_09:00": 161.0, "outbound_14:10": 167.0, "inbound_18:35": 147.0, "roundtrip_09:00": 246.0, "roundtrip_14:10": 252.0, "oneway_total_09:00": 308.0, "oneway_total_14:10": 314.0}];
+
+const labels = CHART_DATA.map(d => d.ts.slice(5));
+
+const hidden = {};
+
+function buildDatasets() {
+  return SERIES.map(s => ({
+    label: s.label,
+    data: CHART_DATA.map(d => d[s.key] ?? null),
+    borderColor: s.color,
+    backgroundColor: s.color + "22",
+    borderWidth: 2,
+    borderDash: s.dashed ? [5, 3] : [],
+    pointRadius: 3,
+    pointHoverRadius: 5,
+    tension: 0.1,
+    spanGaps: true,
+    hidden: hidden[s.key] || false,
+  }));
+}
+
+const chart = new Chart(document.getElementById("chart"), {
+  type: "line",
+  data: { labels, datasets: buildDatasets() },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: "#888", font: { size: 11 }, maxRotation: 45 }, grid: { color: "#f0f0f0" } },
+      y: { ticks: { color: "#888", font: { size: 11 }, callback: v => v + "€" }, grid: { color: "#f0f0f0" } }
+    },
+    interaction: { mode: "index", intersect: false },
+  }
+});
+
+const legend = document.getElementById("legend");
+SERIES.forEach((s, i) => {
+  const item = document.createElement("div");
+  item.className = "legend-item";
+  item.dataset.index = i;
+  const line = document.createElement("div");
+  line.className = s.dashed ? "legend-dashed" : "legend-line";
+  line.style.background = s.dashed ? "none" : s.color;
+  line.style.borderColor = s.color;
+  item.appendChild(line);
+  item.appendChild(document.createTextNode(s.label));
+  item.addEventListener("click", () => {
+    const ds = chart.data.datasets[i];
+    ds.hidden = !ds.hidden;
+    item.classList.toggle("hidden", ds.hidden);
+    chart.update();
+  });
+  legend.appendChild(item);
+});
+</script>
+</body>
+</html>
