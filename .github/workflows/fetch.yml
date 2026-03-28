@@ -4,7 +4,9 @@ on:
   schedule:
     - cron: '0 7 * * *'    # 09:00 Budapest (UTC+2)
     - cron: '0 12 * * *'   # 14:00 Budapest
-    - cron: '0 19 * * *'   # 21:00 Budapest
+    - cron: '0 17 * * *'   # 19:00 Budapest
+    - cron: '0 22 * * *'   # 00:00 Budapest
+    - cron: '0 3 * * *'    # 05:00 Budapest
   workflow_dispatch:
 
 jobs:
