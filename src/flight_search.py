@@ -155,28 +155,28 @@ class FlightSearcher:
         return offers
 
     def _parse_roundtrip_offers(self, raw: dict) -> List[FlightOffer]:
+        """
+        A SerpApi roundtrip válasz csak az oda irányú ajánlatokat tartalmazza
+        (a visszajárat külön departure_token alapú hívással érhető el).
+        A visszajárat indulási idejét és dátumát ezért a konfigurációból vesszük,
+        hiszen pontosan tudjuk melyik visszajáratot figyeljük.
+        """
         all_items = raw.get("best_flights", []) + raw.get("other_flights", [])
         offers = []
+
+        # Visszajárat adatai a konfigból
+        ret_dep_time = self._config.flights.inbound.target_departures[0]
+        ret_dep_date = self._config.flights.inbound.date
+
         for item in all_items:
             try:
                 out_segs = item.get("flights", [])
-                ret_flights = item.get("return_flights", [])
                 if not out_segs:
                     continue
 
                 first_out = out_segs[0]
                 out_dep_full = first_out["departure_airport"]["time"]
                 out_dep_date, out_dep_time = out_dep_full[:10], out_dep_full[11:16]
-
-                ret_dep_time: Optional[str] = None
-                ret_dep_date: Optional[str] = None
-                if ret_flights:
-                    ret_segs = ret_flights[0].get("flights", [{}])
-                    if ret_segs:
-                        ret_dep_full = ret_segs[0].get("departure_airport", {}).get("time", "")
-                        if ret_dep_full:
-                            ret_dep_date = ret_dep_full[:10]
-                            ret_dep_time = ret_dep_full[11:16]
 
                 offers.append(FlightOffer(
                     search_type="roundtrip",
