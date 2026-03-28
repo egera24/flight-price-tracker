@@ -11,11 +11,11 @@ flights:
   outbound:
     origin: "BUD"
     destination: "IST"
-    date: "2025-08-10"
+    date: "2026-08-10"
     carrier_code: "TK"
     target_departures:     # Ezekre a menetrendidőkre szűrünk
       - "09:00"
-      - "12:20"
+      - "14:10"
 
   inbound:
     origin: "IST"
@@ -23,7 +23,7 @@ flights:
     date: "2025-08-18"
     carrier_code: "TK"
     target_departures:
-      - "18:30"
+      - "18:35"
 
 output:
   csv_path: "data/prices.csv"
