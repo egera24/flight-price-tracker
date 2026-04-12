@@ -364,3 +364,8 @@ timestamp,search_type,origin,destination,departure_date,departure_time,return_de
 2026-04-12 05:29:48,inbound,IST,BUD,2026-08-18,18:35,,Turkish Airlines,145.0,EUR
 2026-04-12 05:29:48,roundtrip,BUD,IST,2026-08-10,09:00,18:35,Turkish Airlines,249.0,EUR
 2026-04-12 05:29:48,roundtrip,BUD,IST,2026-08-10,14:10,18:35,Turkish Airlines,258.0,EUR
+2026-04-12 07:56:00,outbound,BUD,IST,2026-08-10,09:00,,Turkish Airlines,163.0,EUR
+2026-04-12 07:56:00,outbound,BUD,IST,2026-08-10,14:10,,Turkish Airlines,171.0,EUR
+2026-04-12 07:56:00,inbound,IST,BUD,2026-08-18,18:35,,Turkish Airlines,145.0,EUR
+2026-04-12 07:56:00,roundtrip,BUD,IST,2026-08-10,09:00,18:35,Turkish Airlines,249.0,EUR
+2026-04-12 07:56:00,roundtrip,BUD,IST,2026-08-10,14:10,18:35,Turkish Airlines,258.0,EUR
